@@ -1,0 +1,78 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: basic-node-chatbot-github
+  title: Basic Node.js Chatbot Service (GitHub)
+  description: Scaffolds a new Node.js service with a Gemini-powered chatbot UI, TechDocs, and GitHub publishing.
+  tags:
+    - node
+    - github
+    - chatbot
+spec:
+  owner: team-demo
+  type: service
+
+  parameters:
+    - title: Service Information
+      required:
+        - component_id
+        - owner
+      properties:
+        component_id:
+          title: Name
+          type: string
+          description: Unique name of the component
+          ui:field: EntityNamePicker
+        owner:
+          title: Owner
+          type: string
+          description: Owner of the component
+          ui:field: OwnerPicker
+          ui:options:
+            allowedKinds:
+              - Group
+    - title: Repository Information
+      required:
+        - repo_name
+        - repo_owner
+      properties:
+        repo_name:
+          title: Repository Name
+          type: string
+        repo_owner:
+          title: Repository Owner
+          type: string
+          description: The GitHub user or organization that will own the repository.
+        visibility:
+          title: Repository Visibility
+          type: string
+          enum: [public, private]
+          default: private
+
+  steps:
+    - id: fetch-template
+      name: Fetch Template
+      action: fetch:template
+      input:
+        url: ./basic-node-template
+        values:
+          name: ${{ parameters.component_id }}
+          owner: ${{ parameters.owner }}
+          repo_name: ${{ parameters.repo_name }}
+          repo_owner: ${{ parameters.repo_owner }}
+
+    - id: publish
+      name: Publish to GitHub
+      action: publish:github
+      input:
+        allowedHosts: ['github.com']
+        description: "New service: ${{ parameters.component_id }}"
+        repoUrl: github.com?owner=${{ parameters.repo_owner }}&repo=${{ parameters.repo_name }}
+        repoVisibility: ${{ parameters.visibility }}
+
+    - id: register
+      name: Register Component
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps.publish.output.repoContentsUrl }}
+        catalogInfoPath: '/catalog-info.yaml'

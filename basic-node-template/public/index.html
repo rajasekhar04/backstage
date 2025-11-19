@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Chatbot Demo</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 16px; background-color: #f4f4f9; }
+    h3 { color: #333; }
+    #chat { width: 600px; max-width: 100%; border: 1px solid #ddd; padding: 12px; border-radius: 8px; background-color: #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    #messages { height: 320px; overflow:auto; margin-bottom: 12px; border-bottom: 1px solid #eee; }
+    .msg { margin: 12px 0; line-height: 1.4; }
+    .role { font-weight:700; margin-right:8px; color: #007bff; }
+    .assistant .role { color: #28a745; }
+    input[type=text]{ width: calc(100% - 80px); padding: 10px; border: 1px solid #ccc; border-radius: 4px; }
+    button{ padding: 10px 15px; border: none; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; }
+    button:disabled { background-color: #aaa; }
+  </style>
+</head>
+<body>
+  <h3>Node.js Chatbot</h3>
+  <div id="chat">
+    <div id="messages"></div>
+    <div>
+      <input id="inp" type="text" placeholder="Ask a question..." />
+      <button id="send">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const messagesEl = document.getElementById('messages');
+    const input = document.getElementById('inp');
+    const sendBtn = document.getElementById('send');
+    let conversation = [];
+
+    function addMessage(role, text){
+      conversation.push({ role, text });
+      const d = document.createElement('div');
+      d.className = 'msg ' + role;
+      d.innerHTML = `<span class="role">${role.charAt(0).toUpperCase() + role.slice(1)}:</span> ` + (text || '');
+      messagesEl.appendChild(d);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    addMessage('assistant', 'Hello! I am a helpful assistant. How can I help you today?');
+
+    async function send(){
+      const text = input.value.trim();
+      if(!text) return;
+
+      addMessage('user', text);
+      input.value = '';
+      sendBtn.disabled = true;
+
+      try {
+        const res = await fetch('/api/chat', {
+          method:'POST',
+          headers:{ 'Content-Type':'application/json' },
+          body: JSON.stringify({ messages: conversation })
+        });
+        const j = await res.json();
+        addMessage('assistant', j.reply || j.error || 'No reply');
+      } catch(e){
+        addMessage('assistant', 'Error: ' + (e.message || e));
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    sendBtn.onclick = send;
+    input.addEventListener('keydown', (e) => { if(e.key === 'Enter') send(); });
+  </script>
+</body>
+</html>

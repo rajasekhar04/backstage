@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{ '{{ parameters.name }}' }}
+  description: "A new service: ${{ '{{ parameters.name }}' }}"
+  annotations:
+    github.com/project-slug: ${{ '{{ parameters.repo_owner }}/${{ parameters.repo_name }}' }}
+    backstage.io/techdocs-ref: dir:.
+spec:
+  type: service
+  owner: ${{ '{{ parameters.owner }}' }}
+  lifecycle: experimental
