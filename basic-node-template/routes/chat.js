@@ -10,10 +10,11 @@ if (!GEMINI_API_KEY) {
 // NOTE: 'gemini-2.5-flash' is a custom model name that worked for you.
 // Publicly available models include 'gemini-1.5-flash' or 'gemini-pro'.
 // You may need to change this depending on your project's available models.
-const GEMINI_MODEL = 'gemini-2.5-flash';
+const GEMINI_MODEL = 'gemini-2.5-flash-lite';
 const API_ENDPOINT = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
 
-const SYSTEM_PROMPT = `You are a helpful, concise assistant.`;
+const SYSTEM_PROMPT = `You are InsuranceAssistant — a helpful, concise insurance domain assistant.
+Be factual. Ask clarifying questions when needed. If asked for private policy details, request authentication. Do not hallucinate policy specifics.`;
 
 async function callGemini(prompt) {
   const requestBody = {
