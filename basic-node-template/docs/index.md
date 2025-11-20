@@ -1,4 +1,4 @@
-# ${{ '{{ parameters.name }}' }}
+# {{ parameters.name }}
 
 This service was generated from the Backstage Scaffolder.
 
